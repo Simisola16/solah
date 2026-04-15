@@ -393,7 +393,7 @@ const Admin = () => {
                             <div className="flex items-center gap-3">
                               {user.profileImage ? (
                                 <img 
-                                  src={`${BACKEND_URL}${user.profileImage}`} 
+                                  src={user.profileImage?.startsWith('data:') ? user.profileImage : `${BACKEND_URL}${user.profileImage}`} 
                                   alt={user.name}
                                   className="w-10 h-10 rounded-full object-cover"
                                 />
@@ -475,7 +475,7 @@ const Admin = () => {
                         <div className="flex items-center gap-3">
                           {user.profileImage ? (
                             <img 
-                              src={`${BACKEND_URL}${user.profileImage}`} 
+                              src={user.profileImage?.startsWith('data:') ? user.profileImage : `${BACKEND_URL}${user.profileImage}`} 
                               alt={user.name}
                               className="w-10 h-10 rounded-full object-cover"
                             />

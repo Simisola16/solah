@@ -141,7 +141,7 @@ const Dashboard = () => {
             <div className="relative">
               {user.profileImage ? (
                 <img 
-                  src={`${BACKEND_URL}${user.profileImage}`} 
+                  src={user.profileImage?.startsWith('data:') ? user.profileImage : `${BACKEND_URL}${user.profileImage}`} 
                   alt={user.name}
                   className="w-24 h-24 rounded-full object-cover border-4 border-islamic-green"
                 />
