@@ -60,6 +60,7 @@ export const prayerLogAPI = {
   getUserPrayerLogs: (userId, params) => api.get(`/prayer-logs/user/${userId}`, { params }),
   getTodayLogs: () => api.get('/prayer-logs/today'),
   getDateLogs: (date) => api.get(`/prayer-logs/by-date/${date}`),
+  getAllLogs: (params) => api.get('/prayer-logs/all', { params }),
 };
 
 // Prayer Times API

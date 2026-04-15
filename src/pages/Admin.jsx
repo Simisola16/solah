@@ -22,6 +22,7 @@ const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [userHistory, setUserHistory] = useState([]);
+  const [allHistory, setAllHistory] = useState([]); // Store history for all users
   const [message, setMessage] = useState({ type: '', text: '' });
 
   // ... (previous state management functions)
@@ -124,6 +125,13 @@ const Admin = () => {
   };
 
   const savePrayerAttendance = async (prayer) => {
+    // Prevent future dates
+    const today = new Date().toISOString().split('T')[0];
+    if (selectedDate > today) {
+      showMessage('error', 'Cannot mark attendance for future dates.');
+      return;
+    }
+
     try {
       setSaving(prev => ({ ...prev, [prayer]: true }));
 
@@ -148,6 +156,23 @@ const Admin = () => {
       setSaving(prev => ({ ...prev, [prayer]: false }));
     }
   };
+
+  const fetchAllHistory = async () => {
+    try {
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const response = await prayerLogAPI.getAllLogs({ startDate, endDate });
+      setAllHistory(response.data);
+    } catch (error) {
+      console.error('Error fetching all history:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'history' && !selectedUser) {
+      fetchAllHistory();
+    }
+  }, [activeTab, selectedUser]);
 
   const viewUserHistory = async (user) => {
     try {
@@ -232,6 +257,7 @@ const Admin = () => {
             <input
               type="date"
               value={selectedDate}
+              max={new Date().toISOString().split('T')[0]}
               onChange={(e) => setSelectedDate(e.target.value)}
               className="w-full sm:w-auto px-4 py-2 rounded-xl text-gray-800 font-bold focus:ring-2 focus:ring-islamic-gold"
             />
@@ -395,15 +421,18 @@ const Admin = () => {
                       <FaHistory size={20} className="text-islamic-gold" />
                       <span className="font-bold truncate">{selectedUser.name}</span>
                     </div>
-                    <button onClick={() => setSelectedUser(null)} className="text-xs font-bold text-red-400 uppercase">Close</button>
+                    <button onClick={() => setSelectedUser(null)} className="text-xs font-bold text-red-400 uppercase">Back to List</button>
                   </div>
                   <div className="space-y-3">
                     {Object.entries(groupedHistory).sort((a, b) => new Date(b[0]) - new Date(a[0])).map(([date, prayers]) => (
-                      <div key={date} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                        <span className="text-xs font-bold">{date}</span>
-                        <div className="flex gap-2">
+                      <div key={date} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <span className="text-xs font-black">{date}</span>
+                        <div className="flex gap-1.5">
                           {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(p => (
-                            <div key={p} className={`w-3 h-3 rounded-full ${prayers[p] === true ? 'bg-green-500' : prayers[p] === false ? 'bg-red-500' : 'bg-gray-200'}`} />
+                            <div key={p} className="flex flex-col items-center gap-1">
+                              <div className={`w-3.5 h-3.5 rounded-full border ${prayers[p] === true ? 'bg-green-500 border-green-600' : prayers[p] === false ? 'bg-red-500 border-red-600' : 'bg-gray-200 border-gray-300'}`} />
+                              <span className="text-[6px] font-bold text-gray-400 uppercase">{p[0]}</span>
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -411,9 +440,88 @@ const Admin = () => {
                   </div>
                 </div>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-4">
-                  <FaUsers size={40} className="opacity-20" />
-                  <p className="font-bold text-center">Select a user from the "Users" tab<br />to view their prayer history.</p>
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-black text-gray-800 flex items-center gap-2">
+                      <FaHistory className="text-islamic-gold" />
+                      Attendance History
+                    </h3>
+                    <div className="text-xs font-bold text-gray-400 uppercase tracking-tighter">Last 7 Days</div>
+                  </div>
+
+                  <div className="relative">
+                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search users to view history..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3">
+                    {filteredUsers.map((user) => {
+                      // Filter logs for this user from allHistory
+                      const userLogs = allHistory.filter(log => log.userId && log.userId._id === user._id);
+                      const dailySummary = userLogs.reduce((acc, log) => {
+                        if (!acc[log.date]) acc[log.date] = { count: 0, total: 5 };
+                        if (log.prayed) acc[log.date].count += 1;
+                        return acc;
+                      }, {});
+
+                      // Get last 7 days including today
+                      const last7Days = [];
+                      for (let i = 0; i < 7; i++) {
+                        const d = new Date();
+                        d.setDate(d.getDate() - i);
+                        last7Days.push(d.toISOString().split('T')[0]);
+                      }
+
+                      return (
+                        <div 
+                          key={user._id} 
+                          onClick={() => viewUserHistory(user)}
+                          className="p-4 bg-white border border-gray-100 rounded-2xl hover:border-islamic-green hover:shadow-md transition-all cursor-pointer group"
+                        >
+                          <div className="flex items-center justify-between gap-4 mb-4">
+                            <div className="flex items-center gap-3">
+                              {user.profileImage ? (
+                                <img src={user.profileImage?.startsWith('data:') ? user.profileImage : `${BACKEND_URL}${user.profileImage}`} className="w-10 h-10 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-islamic-cream flex items-center justify-center text-islamic-green font-bold text-sm">
+                                  {user.name.charAt(0)}
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <p className="font-bold text-gray-800 group-hover:text-islamic-green transition-colors">{user.name}</p>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Tap to see full history</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {last7Days.reverse().map(date => (
+                                <div 
+                                  key={date} 
+                                  className={`w-4 h-4 rounded-sm flex items-center justify-center text-[7px] font-black text-white ${
+                                    dailySummary[date]?.count >= 4 ? 'bg-green-500' : 
+                                    dailySummary[date]?.count >= 1 ? 'bg-yellow-500' :
+                                    dailySummary[date] ? 'bg-red-500' : 'bg-gray-100'
+                                  }`}
+                                  title={`${date}: ${dailySummary[date]?.count || 0}/5 prayers`}
+                                >
+                                  {dailySummary[date]?.count || ''}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-[9px] font-bold text-gray-400 border-t pt-2">
+                            <span>TOTAL MARKED: {userLogs.length}</span>
+                            <span>PRAYED: {userLogs.filter(l => l.prayed).length}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
