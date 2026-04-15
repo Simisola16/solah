@@ -50,6 +50,7 @@ export const userAPI = {
   getAllUsers: () => api.get('/users'),
   getUser: (id) => api.get(`/users/${id}`),
   getUserStats: (id, params) => api.get(`/users/${id}/stats`, { params }),
+  getGlobalStats: () => api.get('/users/global/stats'),
   deleteUser: (id) => api.delete(`/users/${id}`),
 };
 
