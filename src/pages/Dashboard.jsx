@@ -164,7 +164,7 @@ const Dashboard = () => {
               <h2 className="text-xl sm:text-2xl font-bold text-islamic-green-dark">{user.name}</h2>
               <p className="text-gray-500 text-sm sm:text-base">{user.email}</p>
               <p className="text-[10px] uppercase font-bold tracking-widest text-islamic-gold mt-1">
-                Joined {new Date(user.createdAt).toLocaleDateString()}
+                Joined {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'New Member'}
               </p>
             </div>
             {stats && (
@@ -233,7 +233,11 @@ const Dashboard = () => {
                     return (
                       <div key={date} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
                         <div>
-                          <p className="font-bold text-sm">{new Date(date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+                          <p className="font-bold text-sm">
+                            {date && !isNaN(new Date(date).getTime()) 
+                              ? new Date(date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
+                              : 'Recent Date'}
+                          </p>
                           <div className="flex gap-1 mt-1">
                             {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(p => (
                               <div key={p} className={`w-2 h-2 rounded-full ${prayers[p] === true ? 'bg-green-500' : prayers[p] === false ? 'bg-red-500' : 'bg-gray-200'}`} title={p}></div>
