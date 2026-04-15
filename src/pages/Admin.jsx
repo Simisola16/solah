@@ -110,8 +110,9 @@ const Admin = () => {
   };
 
   const handleAttendanceChange = (prayer, userId, prayed) => {
-    // Prevent changes if already saved
-    if (todayLogs[prayer]?.length > 0) return;
+    // Check if this specific user already has a log for this prayer
+    const hasExistingLog = todayLogs[prayer]?.some(log => log.userId._id === userId);
+    if (hasExistingLog) return;
 
     setAttendance(prev => ({
       ...prev,
@@ -137,7 +138,7 @@ const Admin = () => {
         attendances
       });
 
-      showMessage('success', `${prayer} attendance saved successfully!`);
+      showMessage('success', `Attendance updated for ${prayer}!`);
       fetchAdminData(); // Refresh data
     } catch (error) {
       console.error('Error saving attendance:', error);
@@ -267,9 +268,7 @@ const Admin = () => {
                     <div className="flex items-center gap-3">
                       <span className="font-black text-lg">{prayer}</span>
                       <span className={expandedPrayer === prayer ? 'text-islamic-gold' : 'text-gray-400'}>
-                        {todayLogs[prayer]?.length > 0 ? (
-                          <span className="text-[10px] bg-islamic-gold/10 px-2 py-0.5 rounded border border-islamic-gold/30 uppercase font-black">Locked</span>
-                        ) : prayerTimes?.[prayer]}
+                        {prayerTimes?.[prayer]}
                       </span>
                     </div>
                     {expandedPrayer === prayer ? <FaChevronUp /> : <FaChevronDown />}
@@ -290,11 +289,11 @@ const Admin = () => {
                         </div>
                         <button
                           onClick={() => savePrayerAttendance(prayer)}
-                          disabled={saving[prayer] || todayLogs[prayer]?.length > 0}
+                          disabled={saving[prayer]}
                           className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                           {saving[prayer] ? <div className="spinner w-4 h-4 border-2" /> : <FaSave />}
-                          {todayLogs[prayer]?.length > 0 ? 'Saved & Locked' : `Save ${prayer}`}
+                          {`Save ${prayer}`}
                         </button>
                       </div>
 
@@ -309,25 +308,32 @@ const Admin = () => {
                               ) : (
                                 <div className="w-10 h-10 rounded-full bg-islamic-green flex items-center justify-center text-white"><FaUser size={14} /></div>
                               )}
-                              <span className="font-bold text-sm truncate">{user.name}</span>
+                              <div className="flex flex-col min-w-0">
+                                <span className="font-bold text-sm truncate">{user.name}</span>
+                                {todayLogs[prayer]?.some(log => log.userId._id === user._id) && (
+                                  <span className="text-[9px] text-islamic-green font-black uppercase tracking-tighter">Saved</span>
+                                )}
+                              </div>
                             </div>
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleAttendanceChange(prayer, user._id, true)}
-                                disabled={todayLogs[prayer]?.length > 0}
-                                className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest ${
+                                disabled={todayLogs[prayer]?.some(log => log.userId._id === user._id)}
+                                className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${
                                   attendance[prayer]?.[user._id] === true ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'
-                                }`}
+                                } ${todayLogs[prayer]?.some(log => log.userId._id === user._id) ? 'opacity-60 cursor-not-allowed' : ''}`}
                               >
+                                {attendance[prayer]?.[user._id] === true && todayLogs[prayer]?.some(log => log.userId._id === user._id) ? <FaCheck className="inline mr-1" /> : ''}
                                 Prayed
                               </button>
                               <button
                                 onClick={() => handleAttendanceChange(prayer, user._id, false)}
-                                disabled={todayLogs[prayer]?.length > 0}
-                                className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest ${
+                                disabled={todayLogs[prayer]?.some(log => log.userId._id === user._id)}
+                                className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${
                                   attendance[prayer]?.[user._id] === false ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-400'
-                                }`}
+                                } ${todayLogs[prayer]?.some(log => log.userId._id === user._id) ? 'opacity-60 cursor-not-allowed' : ''}`}
                               >
+                                {attendance[prayer]?.[user._id] === false && todayLogs[prayer]?.some(log => log.userId._id === user._id) ? <FaTimes className="inline mr-1" /> : ''}
                                 Missed
                               </button>
                             </div>
