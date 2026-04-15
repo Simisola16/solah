@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { prayerTimesAPI, userAPI, prayerLogAPI, BACKEND_URL } from '../utils/api';
 
 const Admin = () => {
-  const { user, logout, isAdmin, isMarker, isViewer, canMark, canViewAdmin } = useAuth();
+  const { user, logout, isAdmin, isMarker, isViewer, canMark, canViewHistory, canManageUsers } = useAuth();
   const [prayerTimes, setPrayerTimes] = useState(null);
   const [users, setUsers] = useState([]);
   const [todayLogs, setTodayLogs] = useState({});
@@ -102,7 +102,7 @@ const Admin = () => {
       // Auto-set tab based on privilege if current tab is restricted
       if (isViewer() && activeTab !== 'history') {
         setActiveTab('history');
-      } else if (isMarker() && activeTab === 'history') {
+      } else if (isMarker() && activeTab !== 'attendance') {
         setActiveTab('attendance');
       }
     } catch (error) {
@@ -303,7 +303,7 @@ const Admin = () => {
               Manage Users
             </button>
           )}
-          {canViewAdmin() && (
+          {canViewHistory() && (
             <button
               onClick={() => setActiveTab('history')}
               className={`pb-3 px-4 font-bold capitalize ${activeTab === 'history' ? 'text-islamic-green border-b-2 border-islamic-green' : 'text-gray-500'}`}
@@ -607,7 +607,7 @@ const Admin = () => {
             <span className="text-[10px] mt-1 font-bold uppercase">Users</span>
           </button>
         )}
-        {canViewAdmin() && (
+        {canViewHistory() && (
           <button onClick={() => setActiveTab('history')} className={`mobile-nav-item ${activeTab === 'history' ? 'active' : ''}`}>
             <FaHistory size={20} />
             <span className="text-[10px] mt-1 font-bold uppercase">History</span>

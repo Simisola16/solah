@@ -58,7 +58,15 @@ export const AuthProvider = ({ children }) => {
     return ['admin', 'marker'].includes(user?.role);
   };
 
-  const canViewAdmin = () => {
+  const canViewHistory = () => {
+    return ['admin', 'viewer'].includes(user?.role);
+  };
+
+  const canManageUsers = () => {
+    return user?.role === 'admin';
+  };
+
+  const canAccessAdminPanel = () => {
     return ['admin', 'marker', 'viewer'].includes(user?.role);
   };
 
@@ -72,7 +80,9 @@ export const AuthProvider = ({ children }) => {
     isMarker,
     isViewer,
     canMark,
-    canViewAdmin,
+    canViewHistory,
+    canManageUsers,
+    canAccessAdminPanel,
     loading
   };
 

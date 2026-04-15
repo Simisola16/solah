@@ -12,7 +12,7 @@ import NotFound from './pages/NotFound';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
-  const { isAuthenticated, isAdmin, canViewAdmin, loading } = useAuth();
+  const { isAuthenticated, isAdmin, canAccessAdminPanel, loading } = useAuth();
 
   if (loading) {
     return (
@@ -26,7 +26,7 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (requireAdmin && !canViewAdmin()) {
+  if (requireAdmin && !canAccessAdminPanel()) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -35,7 +35,7 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
 
 // Public Route Component (redirect if authenticated)
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, canViewAdmin, loading } = useAuth();
+  const { isAuthenticated, canAccessAdminPanel, loading } = useAuth();
 
   if (loading) {
     return (
@@ -46,7 +46,7 @@ const PublicRoute = ({ children }) => {
   }
 
   if (isAuthenticated()) {
-    return <Navigate to={canViewAdmin() ? '/admin' : '/dashboard'} replace />;
+    return <Navigate to={canAccessAdminPanel() ? '/admin' : '/dashboard'} replace />;
   }
 
   return children;
