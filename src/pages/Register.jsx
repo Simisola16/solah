@@ -61,6 +61,12 @@ const Register = () => {
       return;
     }
 
+    if (!profileImage) {
+      setError('Please upload a profile image');
+      setLoading(false);
+      return;
+    }
+
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters long');
       setLoading(false);
@@ -111,7 +117,7 @@ const Register = () => {
           <form onSubmit={handleSubmit}>
             {/* Profile Image Upload */}
             <div className="mb-6">
-              <label className="form-label">Profile Image (Optional)</label>
+              <label className="form-label">Profile Image <span className="text-red-500">*</span></label>
               <div className="flex items-center gap-4">
                 {previewUrl ? (
                   <div className="relative">
