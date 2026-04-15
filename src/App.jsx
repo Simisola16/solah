@@ -26,6 +26,10 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
     return <Navigate to="/login" replace />;
   }
 
+  if (!requireAdmin && isAdmin()) {
+    return <Navigate to="/admin" replace />;
+  }
+
   if (requireAdmin && !canAccessAdminPanel()) {
     return <Navigate to="/dashboard" replace />;
   }

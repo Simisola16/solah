@@ -247,9 +247,6 @@ const Admin = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/dashboard" className="px-4 py-2 border border-white/30 rounded-lg hover:bg-white/10 transition-all">
-              My Dashboard
-            </Link>
             <button onClick={logout} className="flex items-center gap-2 px-4 py-2 border border-white/30 rounded-lg hover:bg-white/10 transition-all">
               <FaSignOutAlt />
               <span className="hidden sm:inline">Logout</span>
@@ -613,10 +610,6 @@ const Admin = () => {
             <span className="text-[10px] mt-1 font-bold uppercase">History</span>
           </button>
         )}
-        <Link to="/dashboard" className="mobile-nav-item">
-          <FaMosque size={20} />
-          <span className="text-[10px] mt-1 font-bold uppercase">Home</span>
-        </Link>
       </nav>
     </div>
   );
