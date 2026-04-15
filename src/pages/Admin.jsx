@@ -6,7 +6,7 @@ import {
   FaChevronDown, FaChevronUp, FaSearch, FaTrash
 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
-import { prayerTimesAPI, userAPI, prayerLogAPI } from '../utils/api';
+import { prayerTimesAPI, userAPI, prayerLogAPI, BACKEND_URL } from '../utils/api';
 
 const Admin = () => {
   const { user, logout } = useAuth();
@@ -393,7 +393,7 @@ const Admin = () => {
                             <div className="flex items-center gap-3">
                               {user.profileImage ? (
                                 <img 
-                                  src={user.profileImage} 
+                                  src={`${BACKEND_URL}${user.profileImage}`} 
                                   alt={user.name}
                                   className="w-10 h-10 rounded-full object-cover"
                                 />
@@ -475,7 +475,7 @@ const Admin = () => {
                         <div className="flex items-center gap-3">
                           {user.profileImage ? (
                             <img 
-                              src={user.profileImage} 
+                              src={`${BACKEND_URL}${user.profileImage}`} 
                               alt={user.name}
                               className="w-10 h-10 rounded-full object-cover"
                             />

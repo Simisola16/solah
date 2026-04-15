@@ -5,7 +5,7 @@ import {
   FaClock, FaCalendarAlt, FaFire, FaChartPie, FaUser 
 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
-import { prayerTimesAPI, userAPI, prayerLogAPI } from '../utils/api';
+import { prayerTimesAPI, userAPI, prayerLogAPI, BACKEND_URL } from '../utils/api';
 
 const Dashboard = () => {
   const { user, logout, isAdmin } = useAuth();
@@ -141,7 +141,7 @@ const Dashboard = () => {
             <div className="relative">
               {user.profileImage ? (
                 <img 
-                  src={user.profileImage} 
+                  src={`${BACKEND_URL}${user.profileImage}`} 
                   alt={user.name}
                   className="w-24 h-24 rounded-full object-cover border-4 border-islamic-green"
                 />

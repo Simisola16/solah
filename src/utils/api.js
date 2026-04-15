@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+export const BACKEND_URL = 'https://solahbackend.vercel.app';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: `${BACKEND_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
