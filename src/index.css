@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #f8f5e8;
+  color: #1a1a1a;
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a6b3c;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0f4a28;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes pulse-gold {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(201, 168, 76, 0);
+  }
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 2s infinite;
+}
+
+/* Prayer card styles */
+.prayer-card {
+  @apply bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-lg;
+}
+
+.prayer-card.prayed {
+  @apply border-2 border-islamic-green bg-green-50;
+}
+
+.prayer-card.missed {
+  @apply border-2 border-red-400 bg-red-50;
+}
+
+.prayer-card.pending {
+  @apply border-2 border-gray-200;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply bg-islamic-green text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-islamic-green-dark hover:shadow-lg;
+}
+
+.btn-gold {
+  @apply bg-islamic-gold text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-islamic-gold-dark hover:shadow-lg;
+}
+
+.btn-outline {
+  @apply border-2 border-islamic-green text-islamic-green px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-islamic-green hover:text-white;
+}
+
+/* Status badges */
+.badge-prayed {
+  @apply bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1;
+}
+
+.badge-missed {
+  @apply bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1;
+}
+
+.badge-pending {
+  @apply bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1;
+}
+
+/* Form styles */
+.form-input {
+  @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-islamic-green focus:border-transparent transition-all duration-300;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+/* Loading spinner */
+.spinner {
+  @apply w-8 h-8 border-4 border-islamic-green border-t-transparent rounded-full animate-spin;
+}
+
+/* Mosque silhouette decoration */
+.mosque-decoration {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60' fill='%231a6b3c' opacity='0.1'%3E%3Cpath d='M50 5 C45 5 42 10 42 15 L42 20 L35 20 L35 15 C35 12 33 10 30 10 C27 10 25 12 25 15 L25 20 L20 20 L20 55 L80 55 L80 20 L75 20 L75 15 C75 12 73 10 70 10 C67 10 65 12 65 15 L65 20 L58 20 L58 15 C58 10 55 5 50 5 Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
