@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { prayerTimesAPI, userAPI, prayerLogAPI, BACKEND_URL } from '../utils/api';
 
 const Admin = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin, isMarker, isViewer, canMark, canViewAdmin } = useAuth();
   const [prayerTimes, setPrayerTimes] = useState(null);
   const [users, setUsers] = useState([]);
   const [todayLogs, setTodayLogs] = useState({});
@@ -23,6 +23,7 @@ const Admin = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userHistory, setUserHistory] = useState([]);
   const [allHistory, setAllHistory] = useState([]); // Store history for all users
+  const [updatingRole, setUpdatingRole] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
 
   // ... (previous state management functions)
@@ -97,6 +98,13 @@ const Admin = () => {
       });
 
       setAttendance(newAttendance);
+
+      // Auto-set tab based on privilege if current tab is restricted
+      if (isViewer() && activeTab !== 'history') {
+        setActiveTab('history');
+      } else if (isMarker() && activeTab === 'history') {
+        setActiveTab('attendance');
+      }
     } catch (error) {
       console.error('Error fetching admin data:', error);
       showMessage('error', 'Failed to load data. Please try again.');
@@ -187,6 +195,19 @@ const Admin = () => {
       showMessage('error', 'Failed to load user history.');
     }
   };
+  const handleRoleUpdate = async (userId, newRole) => {
+    try {
+      setUpdatingRole(userId);
+      await userAPI.updateUserRole(userId, newRole);
+      showMessage('success', 'User role updated successfully');
+      setUsers(users.map(u => u._id === userId ? { ...u, role: newRole } : u));
+    } catch (error) {
+      console.error('Error updating role:', error);
+      showMessage('error', error.response?.data?.message || 'Failed to update role');
+    } finally {
+      setUpdatingRole(null);
+    }
+  };
 
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -266,17 +287,30 @@ const Admin = () => {
 
         {/* Desktop Tabs */}
         <div className="hidden sm:flex gap-4 mb-6 border-b border-gray-200">
-          {['attendance', 'users', 'history'].map(tab => (
+          {canMark() && (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`pb-3 px-4 font-bold capitalize ${
-                activeTab === tab ? 'text-islamic-green border-b-2 border-islamic-green' : 'text-gray-500'
-              }`}
+              onClick={() => setActiveTab('attendance')}
+              className={`pb-3 px-4 font-bold capitalize ${activeTab === 'attendance' ? 'text-islamic-green border-b-2 border-islamic-green' : 'text-gray-500'}`}
             >
-              Mark {tab}
+              Mark Attendance
             </button>
-          ))}
+          )}
+          {isAdmin() && (
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`pb-3 px-4 font-bold capitalize ${activeTab === 'users' ? 'text-islamic-green border-b-2 border-islamic-green' : 'text-gray-500'}`}
+            >
+              Manage Users
+            </button>
+          )}
+          {canViewAdmin() && (
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`pb-3 px-4 font-bold capitalize ${activeTab === 'history' ? 'text-islamic-green border-b-2 border-islamic-green' : 'text-gray-500'}`}
+            >
+              History
+            </button>
+          )}
         </div>
 
         {/* Tab Content */}
@@ -314,14 +348,16 @@ const Admin = () => {
                             className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-islamic-green"
                           />
                         </div>
-                        <button
-                          onClick={() => savePrayerAttendance(prayer)}
-                          disabled={saving[prayer]}
-                          className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2 disabled:opacity-50"
-                        >
-                          {saving[prayer] ? <div className="spinner w-4 h-4 border-2" /> : <FaSave />}
-                          {`Save ${prayer}`}
-                        </button>
+                        {canMark() && (
+                          <button
+                            onClick={() => savePrayerAttendance(prayer)}
+                            disabled={saving[prayer]}
+                            className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2 disabled:opacity-50"
+                          >
+                            {saving[prayer] ? <div className="spinner w-4 h-4 border-2" /> : <FaSave />}
+                            {`Save ${prayer}`}
+                          </button>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -398,12 +434,40 @@ const Admin = () => {
                       )}
                       <div className="min-w-0">
                         <p className="font-black text-gray-800 truncate">{user.name}</p>
-                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                            user.role === 'admin' ? 'bg-red-100 text-red-600' :
+                            user.role === 'marker' ? 'bg-blue-100 text-blue-600' :
+                            user.role === 'viewer' ? 'bg-purple-100 text-purple-600' :
+                            'bg-gray-100 text-gray-600'
+                          }`}>
+                            {user.role}
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    
+                    {isAdmin() && (
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase">Change Privilege</p>
+                        <select 
+                          value={user.role} 
+                          onChange={(e) => handleRoleUpdate(user._id, e.target.value)}
+                          disabled={updatingRole === user._id}
+                          className="w-full p-2 bg-gray-50 border border-gray-100 rounded-lg text-xs font-bold focus:ring-2 focus:ring-islamic-green appearance-none"
+                        >
+                          <option value="user">User (Standard)</option>
+                          <option value="marker">Marker (Attendance Only)</option>
+                          <option value="viewer">Viewer (History Only)</option>
+                        </select>
+                      </div>
+                    )}
+
                     <div className="flex gap-2 border-t pt-4">
                       <button onClick={() => viewUserHistory(user)} className="flex-1 py-2 bg-islamic-cream text-islamic-green rounded-lg font-bold text-xs uppercase">History</button>
-                      <button onClick={() => handleDeleteUser(user._id, user.name)} className="p-2 text-red-400 hover:bg-red-50 rounded-lg"><FaTrash /></button>
+                      {isAdmin() && (
+                        <button onClick={() => handleDeleteUser(user._id, user.name)} className="p-2 text-red-400 hover:bg-red-50 rounded-lg"><FaTrash /></button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -531,18 +595,24 @@ const Admin = () => {
 
       {/* Mobile Tab Bar */}
       <nav className="mobile-nav">
-        <button onClick={() => setActiveTab('attendance')} className={`mobile-nav-item ${activeTab === 'attendance' ? 'active' : ''}`}>
-          <FaCheck size={20} />
-          <span className="text-[10px] mt-1 font-bold uppercase">Mark</span>
-        </button>
-        <button onClick={() => setActiveTab('users')} className={`mobile-nav-item ${activeTab === 'users' ? 'active' : ''}`}>
-          <FaUsers size={20} />
-          <span className="text-[10px] mt-1 font-bold uppercase">Users</span>
-        </button>
-        <button onClick={() => setActiveTab('history')} className={`mobile-nav-item ${activeTab === 'history' ? 'active' : ''}`}>
-          <FaHistory size={20} />
-          <span className="text-[10px] mt-1 font-bold uppercase">History</span>
-        </button>
+        {canMark() && (
+          <button onClick={() => setActiveTab('attendance')} className={`mobile-nav-item ${activeTab === 'attendance' ? 'active' : ''}`}>
+            <FaCheck size={20} />
+            <span className="text-[10px] mt-1 font-bold uppercase">Mark</span>
+          </button>
+        )}
+        {isAdmin() && (
+          <button onClick={() => setActiveTab('users')} className={`mobile-nav-item ${activeTab === 'users' ? 'active' : ''}`}>
+            <FaUsers size={20} />
+            <span className="text-[10px] mt-1 font-bold uppercase">Users</span>
+          </button>
+        )}
+        {canViewAdmin() && (
+          <button onClick={() => setActiveTab('history')} className={`mobile-nav-item ${activeTab === 'history' ? 'active' : ''}`}>
+            <FaHistory size={20} />
+            <span className="text-[10px] mt-1 font-bold uppercase">History</span>
+          </button>
+        )}
         <Link to="/dashboard" className="mobile-nav-item">
           <FaMosque size={20} />
           <span className="text-[10px] mt-1 font-bold uppercase">Home</span>

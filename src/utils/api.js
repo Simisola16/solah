@@ -51,6 +51,7 @@ export const userAPI = {
   getUser: (id) => api.get(`/users/${id}`),
   getUserStats: (id, params) => api.get(`/users/${id}/stats`, { params }),
   getGlobalStats: () => api.get('/users/global/stats'),
+  updateUserRole: (id, role) => api.patch(`/users/${id}/role`, { role }),
   deleteUser: (id) => api.delete(`/users/${id}`),
 };
 

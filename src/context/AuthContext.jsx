@@ -46,6 +46,22 @@ export const AuthProvider = ({ children }) => {
     return user?.role === 'admin';
   };
 
+  const isMarker = () => {
+    return user?.role === 'marker';
+  };
+
+  const isViewer = () => {
+    return user?.role === 'viewer';
+  };
+
+  const canMark = () => {
+    return ['admin', 'marker'].includes(user?.role);
+  };
+
+  const canViewAdmin = () => {
+    return ['admin', 'marker', 'viewer'].includes(user?.role);
+  };
+
   const value = {
     user,
     token,
@@ -53,6 +69,10 @@ export const AuthProvider = ({ children }) => {
     logout,
     isAuthenticated,
     isAdmin,
+    isMarker,
+    isViewer,
+    canMark,
+    canViewAdmin,
     loading
   };
 
