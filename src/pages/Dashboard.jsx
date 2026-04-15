@@ -106,9 +106,9 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-islamic-cream">
-      {/* Header */}
-      <header className="bg-islamic-green text-white py-4 px-6 shadow-lg">
+    <div className="min-h-screen bg-islamic-cream mobile-page-container">
+      {/* Header - Hidden on mobile, shown on desktop */}
+      <header className="bg-islamic-green text-white py-4 px-6 shadow-lg hidden sm:block">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <FaMosque className="text-3xl text-islamic-gold" />
@@ -134,262 +134,155 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-6">
+      {/* Mobile Header */}
+      <div className="sm:hidden bg-islamic-green p-4 sticky top-0 z-40 flex items-center justify-between shadow-md">
+        <div className="flex items-center gap-2 text-white">
+          <FaMosque className="text-xl text-islamic-gold" />
+          <span className="font-bold">Solah Tracker</span>
+        </div>
+        <button onClick={logout} className="text-white/80"><FaSignOutAlt size={20} /></button>
+      </div>
+
+      <main className="max-w-7xl mx-auto p-4 sm:p-6">
         {/* User Profile Section */}
-        <section className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex flex-col sm:flex-row items-center gap-6">
+        <section className="bg-white rounded-2xl shadow-sm p-5 mb-6 border border-gray-100">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
             <div className="relative">
               {user.profileImage ? (
                 <img 
                   src={user.profileImage?.startsWith('data:') ? user.profileImage : `${BACKEND_URL}${user.profileImage}`} 
                   alt={user.name}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-islamic-green"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-islamic-green"
                 />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-islamic-green flex items-center justify-center border-4 border-islamic-gold">
-                  <FaUser className="text-4xl text-white" />
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-islamic-green flex items-center justify-center border-4 border-islamic-gold">
+                  <FaUser className="text-3xl sm:text-4xl text-white" />
                 </div>
               )}
             </div>
             <div className="text-center sm:text-left flex-1">
-              <h2 className="text-2xl font-bold text-islamic-green-dark">{user.name}</h2>
-              <p className="text-gray-600">{user.email}</p>
-              <p className="text-sm text-islamic-gold mt-1">
-                Member since {new Date(user.createdAt).toLocaleDateString()}
+              <h2 className="text-xl sm:text-2xl font-bold text-islamic-green-dark">{user.name}</h2>
+              <p className="text-gray-500 text-sm sm:text-base">{user.email}</p>
+              <p className="text-[10px] uppercase font-bold tracking-widest text-islamic-gold mt-1">
+                Joined {new Date(user.createdAt).toLocaleDateString()}
               </p>
             </div>
             {stats && (
-              <div className="flex gap-4">
-                <div className="text-center bg-islamic-cream rounded-lg p-4">
-                  <FaFire className="text-2xl text-orange-500 mx-auto mb-1" />
-                  <p className="text-2xl font-bold text-islamic-green-dark">{stats.streak}</p>
-                  <p className="text-xs text-gray-600">Day Streak</p>
+              <div className="flex gap-3 w-full sm:w-auto">
+                <div className="flex-1 text-center bg-islamic-cream/50 rounded-xl p-3 border border-islamic-green/10">
+                  <FaFire className="text-xl text-orange-500 mx-auto mb-1" />
+                  <p className="text-xl font-bold text-islamic-green-dark">{stats.streak}</p>
+                  <p className="text-[10px] uppercase font-bold text-gray-500">Streak</p>
                 </div>
-                <div className="text-center bg-islamic-cream rounded-lg p-4">
-                  <FaChartPie className="text-2xl text-islamic-green mx-auto mb-1" />
-                  <p className="text-2xl font-bold text-islamic-green-dark">{stats.percentage}%</p>
-                  <p className="text-xs text-gray-600">This Month</p>
+                <div className="flex-1 text-center bg-islamic-cream/50 rounded-xl p-3 border border-islamic-green/10">
+                  <FaChartPie className="text-xl text-islamic-green mx-auto mb-1" />
+                  <p className="text-xl font-bold text-islamic-green-dark">{stats.percentage}%</p>
+                  <p className="text-[10px] uppercase font-bold text-gray-500">Rate</p>
                 </div>
               </div>
             )}
           </div>
         </section>
 
-        {/* Prayer Times Section */}
-        {prayerTimes && (
-          <section className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-islamic-green-dark flex items-center gap-2">
-                <FaClock className="text-islamic-gold" />
-                Today's Prayer Times
-              </h3>
-              <p className="text-gray-600 text-sm">
-                {prayerTimes.date} | {prayerTimes.hijriDate} AH
-              </p>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-              {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((prayer) => (
-                <div 
-                  key={prayer}
-                  className={`prayer-card ${getPrayerStatus(prayer)}`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="font-semibold text-islamic-green-dark">{prayer}</span>
-                    {getStatusIcon(getPrayerStatus(prayer))}
-                  </div>
-                  <p className="text-2xl font-bold text-gray-800">{prayerTimes[prayer]}</p>
-                  <div className="mt-2">
-                    {getStatusBadge(getPrayerStatus(prayer))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Tabs */}
-        <div className="flex gap-4 mb-6 border-b border-gray-200">
-          <button
-            onClick={() => setActiveTab('today')}
-            className={`pb-3 px-4 font-medium transition-all ${
-              activeTab === 'today' 
-                ? 'text-islamic-green border-b-2 border-islamic-green' 
-                : 'text-gray-600 hover:text-islamic-green'
-            }`}
-          >
-            Today's Status
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`pb-3 px-4 font-medium transition-all ${
-              activeTab === 'history' 
-                ? 'text-islamic-green border-b-2 border-islamic-green' 
-                : 'text-gray-600 hover:text-islamic-green'
-            }`}
-          >
-            Prayer History
-          </button>
-          <button
-            onClick={() => setActiveTab('stats')}
-            className={`pb-3 px-4 font-medium transition-all ${
-              activeTab === 'stats' 
-                ? 'text-islamic-green border-b-2 border-islamic-green' 
-                : 'text-gray-600 hover:text-islamic-green'
-            }`}
-          >
-            Statistics
-          </button>
+        {/* Tab Selection (Desktop) */}
+        <div className="hidden sm:flex gap-4 mb-6 border-b border-gray-200">
+          {['today', 'history', 'stats'].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-3 px-4 font-medium capitalize ${
+                activeTab === tab ? 'text-islamic-green border-b-2 border-islamic-green' : 'text-gray-600'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
 
         {/* Tab Content */}
-        {activeTab === 'today' && (
-          <section className="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
-            <h3 className="text-lg font-bold text-islamic-green-dark mb-4">
-              Today's Prayer Summary
-            </h3>
-            <div className="space-y-4">
-              {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((prayer) => {
-                const status = getPrayerStatus(prayer);
-                return (
-                  <div 
-                    key={prayer}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        status === 'prayed' ? 'bg-green-100' : 
-                        status === 'missed' ? 'bg-red-100' : 'bg-gray-100'
-                      }`}>
-                        {getStatusIcon(status)}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-800">{prayer}</p>
-                        <p className="text-sm text-gray-500">
-                          {prayerTimes?.[prayer] || '--:--'}
-                        </p>
-                      </div>
+        <div className="animate-fade-in">
+          {activeTab === 'today' && (
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-islamic-green-dark">Today's Prayers</h3>
+                <span className="text-xs text-gray-500">{prayerTimes?.date}</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((prayer) => (
+                  <div key={prayer} className={`prayer-card ${getPrayerStatus(prayer)}`}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="font-bold text-sm text-islamic-green-dark">{prayer}</span>
+                      {getStatusIcon(getPrayerStatus(prayer))}
                     </div>
-                    {getStatusBadge(status)}
+                    <p className="text-xl font-black text-gray-800">{prayerTimes?.[prayer] || '--:--'}</p>
+                    <div className="mt-2">{getStatusBadge(getPrayerStatus(prayer))}</div>
                   </div>
-                );
-              })}
-            </div>
-            <div className="mt-6 p-4 bg-islamic-cream rounded-lg">
-              <p className="text-sm text-gray-600">
-                <strong>Note:</strong> Your prayers are marked by the admin. 
-                Contact your administrator if you have any questions about your prayer records.
-              </p>
-            </div>
-          </section>
-        )}
-
-        {activeTab === 'history' && (
-          <section className="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
-            <h3 className="text-lg font-bold text-islamic-green-dark mb-4 flex items-center gap-2">
-              <FaCalendarAlt className="text-islamic-gold" />
-              Last 30 Days History
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700">Fajr</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700">Dhuhr</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700">Asr</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700">Maghrib</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700">Isha</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700">Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(groupedHistory)
-                    .sort((a, b) => new Date(b[0]) - new Date(a[0]))
-                    .map(([date, prayers]) => {
-                      const prayedCount = Object.values(prayers).filter(v => v).length;
-                      return (
-                        <tr key={date} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="py-3 px-4 text-sm">{date}</td>
-                          {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(prayer => (
-                            <td key={prayer} className="py-3 px-4 text-center">
-                              {prayers[prayer] === true ? (
-                                <FaCheckCircle className="text-green-500 mx-auto" />
-                              ) : prayers[prayer] === false ? (
-                                <FaTimesCircle className="text-red-500 mx-auto" />
-                              ) : (
-                                <span className="text-gray-300">-</span>
-                              )}
-                            </td>
-                          ))}
-                          <td className="py-3 px-4 text-center">
-                            <span className={`font-semibold ${
-                              prayedCount === 5 ? 'text-green-600' : 
-                              prayedCount >= 3 ? 'text-yellow-600' : 'text-red-600'
-                            }`}>
-                              {prayedCount}/5
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-              {Object.keys(groupedHistory).length === 0 && (
-                <p className="text-center text-gray-500 py-8">No prayer history available yet.</p>
-              )}
-            </div>
-          </section>
-        )}
-
-        {activeTab === 'stats' && stats && (
-          <section className="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
-            <h3 className="text-lg font-bold text-islamic-green-dark mb-4 flex items-center gap-2">
-              <FaChartPie className="text-islamic-gold" />
-              Monthly Statistics ({stats.month})
-            </h3>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatCard 
-                title="Total Prayers"
-                value={stats.totalPrayers}
-                icon={<FaClock className="text-2xl" />}
-                color="blue"
-              />
-              <StatCard 
-                title="Prayed"
-                value={stats.prayedCount}
-                icon={<FaCheckCircle className="text-2xl" />}
-                color="green"
-              />
-              <StatCard 
-                title="Missed"
-                value={stats.missedCount}
-                icon={<FaTimesCircle className="text-2xl" />}
-                color="red"
-              />
-              <StatCard 
-                title="Completion Rate"
-                value={`${stats.percentage}%`}
-                icon={<FaFire className="text-2xl" />}
-                color="gold"
-              />
-            </div>
-            
-            {/* Progress Bar */}
-            <div className="mt-8">
-              <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Monthly Progress</span>
-                <span className="text-sm font-medium text-islamic-green">{stats.percentage}%</span>
+                ))}
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-4">
-                <div 
-                  className="bg-gradient-to-r from-islamic-green to-islamic-gold h-4 rounded-full transition-all duration-500"
-                  style={{ width: `${stats.percentage}%` }}
-                ></div>
+            </section>
+          )}
+
+          {activeTab === 'history' && (
+            <section className="bg-white rounded-2xl p-4 shadow-sm">
+              <h3 className="font-bold text-islamic-green-dark mb-4">Last 30 Days</h3>
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+                {Object.entries(groupedHistory)
+                  .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+                  .map(([date, prayers]) => {
+                    const prayedCount = Object.values(prayers).filter(v => v).length;
+                    return (
+                      <div key={date} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <div>
+                          <p className="font-bold text-sm">{new Date(date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+                          <div className="flex gap-1 mt-1">
+                            {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(p => (
+                              <div key={p} className={`w-2 h-2 rounded-full ${prayers[p] === true ? 'bg-green-500' : prayers[p] === false ? 'bg-red-500' : 'bg-gray-200'}`} title={p}></div>
+                            ))}
+                          </div>
+                        </div>
+                        <span className={`text-sm font-black ${prayedCount === 5 ? 'text-green-600' : 'text-islamic-gold'}`}>{prayedCount}/5</span>
+                      </div>
+                    );
+                  })}
               </div>
-            </div>
-          </section>
-        )}
+            </section>
+          )}
+
+          {activeTab === 'stats' && stats && (
+            <section className="bg-white rounded-2xl p-6 shadow-sm">
+              <h3 className="font-bold text-islamic-green-dark mb-6">Your Performance</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <StatCard title="Total" value={stats.totalPrayers} icon={<FaClock />} color="blue" />
+                <StatCard title="Prayed" value={stats.prayedCount} icon={<FaCheckCircle />} color="green" />
+                <StatCard title="Missed" value={stats.missedCount} icon={<FaTimesCircle />} color="red" />
+                <StatCard title="Rate" value={`${stats.percentage}%`} icon={<FaFire />} color="gold" />
+              </div>
+            </section>
+          )}
+        </div>
       </main>
+
+      {/* Mobile Tab Bar */}
+      <nav className="mobile-nav">
+        <button onClick={() => setActiveTab('today')} className={`mobile-nav-item ${activeTab === 'today' ? 'active' : ''}`}>
+          <FaMosque size={20} />
+          <span className="text-[10px] mt-1 font-bold uppercase">Prayers</span>
+        </button>
+        <button onClick={() => setActiveTab('stats')} className={`mobile-nav-item ${activeTab === 'stats' ? 'active' : ''}`}>
+          <FaChartPie size={20} />
+          <span className="text-[10px] mt-1 font-bold uppercase">Stats</span>
+        </button>
+        <button onClick={() => setActiveTab('history')} className={`mobile-nav-item ${activeTab === 'history' ? 'active' : ''}`}>
+          <FaCalendarAlt size={20} />
+          <span className="text-[10px] mt-1 font-bold uppercase">History</span>
+        </button>
+        {isAdmin() && (
+          <Link to="/admin" className="mobile-nav-item">
+            <FaUser size={20} />
+            <span className="text-[10px] mt-1 font-bold uppercase">Admin</span>
+          </Link>
+        )}
+      </nav>
     </div>
   );
 };

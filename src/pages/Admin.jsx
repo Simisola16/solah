@@ -187,9 +187,9 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-islamic-cream">
-      {/* Header */}
-      <header className="bg-islamic-green text-white py-4 px-6 shadow-lg">
+    <div className="min-h-screen bg-islamic-cream mobile-page-container">
+      {/* Desktop Header */}
+      <header className="bg-islamic-green text-white py-4 px-6 shadow-lg hidden sm:block">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <FaMosque className="text-3xl text-islamic-gold" />
@@ -199,16 +199,10 @@ const Admin = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Link 
-              to="/dashboard" 
-              className="px-4 py-2 border border-white/30 rounded-lg hover:bg-white/10 transition-all"
-            >
+            <Link to="/dashboard" className="px-4 py-2 border border-white/30 rounded-lg hover:bg-white/10 transition-all">
               My Dashboard
             </Link>
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 px-4 py-2 border border-white/30 rounded-lg hover:bg-white/10 transition-all"
-            >
+            <button onClick={logout} className="flex items-center gap-2 px-4 py-2 border border-white/30 rounded-lg hover:bg-white/10 transition-all">
               <FaSignOutAlt />
               <span className="hidden sm:inline">Logout</span>
             </button>
@@ -216,219 +210,125 @@ const Admin = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-6">
-        {/* Admin Info */}
-        <section className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-islamic-green flex items-center justify-center">
-              <FaUser className="text-2xl text-white" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-islamic-green-dark">{user.name}</h2>
-              <p className="text-gray-600">{user.email}</p>
-              <span className="inline-block mt-1 px-3 py-1 bg-islamic-gold text-islamic-green text-xs font-semibold rounded-full">
-                Administrator
-              </span>
-            </div>
+      {/* Mobile Header */}
+      <div className="sm:hidden bg-islamic-green p-4 sticky top-0 z-40 flex items-center justify-between shadow-md">
+        <div className="flex items-center gap-2 text-white">
+          <FaMosque className="text-xl text-islamic-gold" />
+          <span className="font-bold">Admin Panel</span>
+        </div>
+        <button onClick={logout} className="text-white/80"><FaSignOutAlt size={20} /></button>
+      </div>
+
+      <main className="max-w-7xl mx-auto p-4 sm:p-6">
+        {/* Date Selection - More Compact on Mobile */}
+        <section className="bg-islamic-green text-white rounded-2xl shadow-sm p-4 mb-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <h3 className="font-bold text-sm tracking-wider uppercase flex items-center gap-2">
+              <FaCalendarAlt className="text-islamic-gold" />
+              {new Date(selectedDate).toLocaleDateString(undefined, { dateStyle: 'long' })}
+            </h3>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full sm:w-auto px-4 py-2 rounded-xl text-gray-800 font-bold focus:ring-2 focus:ring-islamic-gold"
+            />
           </div>
         </section>
 
-        {/* Prayer Times */}
-        {prayerTimes && (
-          <section className="bg-islamic-green text-white rounded-2xl shadow-lg p-6 mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <FaClock className="text-islamic-gold" />
-                Prayer Times for {selectedDate}
-              </h3>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-4 py-2 rounded-lg text-gray-800"
-              />
-            </div>
-            <div className="grid grid-cols-5 gap-4">
-              {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((prayer) => (
-                <div 
-                  key={prayer}
-                  className="bg-white/10 backdrop-blur rounded-lg p-4 text-center border border-islamic-gold/30"
-                >
-                  <p className="text-sm text-islamic-gold mb-1">{prayer}</p>
-                  <p className="text-xl font-bold">{prayerTimes[prayer]}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Message */}
-        {message.text && (
-          <div className={`mb-6 px-4 py-3 rounded-lg ${
-            message.type === 'success' ? 'bg-green-100 text-green-700 border border-green-200' :
-            'bg-red-100 text-red-700 border border-red-200'
-          }`}>
-            {message.text}
-          </div>
-        )}
-
-        {/* Tabs */}
-        <div className="flex gap-4 mb-6 border-b border-gray-200">
-          <button
-            onClick={() => setActiveTab('attendance')}
-            className={`pb-3 px-4 font-medium transition-all flex items-center gap-2 ${
-              activeTab === 'attendance' 
-                ? 'text-islamic-green border-b-2 border-islamic-green' 
-                : 'text-gray-600 hover:text-islamic-green'
-            }`}
-          >
-            <FaUsers />
-            Mark Attendance
-          </button>
-          <button
-            onClick={() => setActiveTab('users')}
-            className={`pb-3 px-4 font-medium transition-all flex items-center gap-2 ${
-              activeTab === 'users' 
-                ? 'text-islamic-green border-b-2 border-islamic-green' 
-                : 'text-gray-600 hover:text-islamic-green'
-            }`}
-          >
-            <FaUser />
-            All Users
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`pb-3 px-4 font-medium transition-all flex items-center gap-2 ${
-              activeTab === 'history' 
-                ? 'text-islamic-green border-b-2 border-islamic-green' 
-                : 'text-gray-600 hover:text-islamic-green'
-            }`}
-          >
-            <FaHistory />
-            User History
-          </button>
+        {/* Desktop Tabs */}
+        <div className="hidden sm:flex gap-4 mb-6 border-b border-gray-200">
+          {['attendance', 'users', 'history'].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-3 px-4 font-bold capitalize ${
+                activeTab === tab ? 'text-islamic-green border-b-2 border-islamic-green' : 'text-gray-500'
+              }`}
+            >
+              Mark {tab}
+            </button>
+          ))}
         </div>
 
-        {/* Attendance Tab */}
-        {activeTab === 'attendance' && (
-          <section className="animate-fade-in">
-            <div className="space-y-4">
+        {/* Tab Content */}
+        <div className="animate-fade-in">
+          {/* Attendance Tab */}
+          {activeTab === 'attendance' && (
+            <div className="space-y-3">
               {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((prayer) => (
-                <div key={prayer} className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div key={prayer} className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
                   <button
                     onClick={() => setExpandedPrayer(expandedPrayer === prayer ? null : prayer)}
-                    className="w-full px-6 py-4 flex items-center justify-between bg-islamic-green text-white hover:bg-islamic-green-dark transition-all"
+                    className={`w-full px-5 py-4 flex items-center justify-between transition-all ${
+                      expandedPrayer === prayer ? 'bg-islamic-green text-white' : 'bg-white text-gray-800'
+                    }`}
                   >
-                    <div className="flex items-center gap-4">
-                      <span className="text-lg font-semibold">{prayer}</span>
-                      <span className="text-islamic-gold">({prayerTimes?.[prayer] || '--:--'})</span>
-                      {todayLogs[prayer]?.length > 0 && (
-                        <span className="px-2 py-0.5 bg-islamic-gold/20 border border-islamic-gold/50 text-islamic-gold text-[10px] uppercase font-bold rounded">
-                          Locked
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm">
-                        {Object.values(attendance[prayer] || {}).filter(v => v).length} / {users.length} prayed
+                    <div className="flex items-center gap-3">
+                      <span className="font-black text-lg">{prayer}</span>
+                      <span className={expandedPrayer === prayer ? 'text-islamic-gold' : 'text-gray-400'}>
+                        {todayLogs[prayer]?.length > 0 ? (
+                          <span className="text-[10px] bg-islamic-gold/10 px-2 py-0.5 rounded border border-islamic-gold/30 uppercase font-black">Locked</span>
+                        ) : prayerTimes?.[prayer]}
                       </span>
-                      {expandedPrayer === prayer ? <FaChevronUp /> : <FaChevronDown />}
                     </div>
+                    {expandedPrayer === prayer ? <FaChevronUp /> : <FaChevronDown />}
                   </button>
 
                   {expandedPrayer === prayer && (
-                    <div className="p-6 animate-fade-in">
-                      <div className="mb-4 flex items-center gap-4">
-                        <div className="relative flex-1 max-w-md">
+                    <div className="p-4 bg-gray-50/50">
+                      <div className="mb-4 flex flex-col sm:flex-row gap-3">
+                        <div className="relative flex-1">
                           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                           <input
                             type="text"
-                            placeholder="Search users..."
+                            placeholder="Find user..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-islamic-green"
+                            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-islamic-green"
                           />
                         </div>
                         <button
                           onClick={() => savePrayerAttendance(prayer)}
                           disabled={saving[prayer] || todayLogs[prayer]?.length > 0}
-                          className="btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2 disabled:opacity-50"
                         >
-                          {saving[prayer] ? (
-                            <>
-                              <div className="spinner w-4 h-4 border-2"></div>
-                              Saving...
-                            </>
-                          ) : todayLogs[prayer]?.length > 0 ? (
-                            <>
-                              <FaCheck />
-                              Attendance Saved
-                            </>
-                          ) : (
-                            <>
-                              <FaSave />
-                              Save {prayer} Attendance
-                            </>
-                          )}
+                          {saving[prayer] ? <div className="spinner w-4 h-4 border-2" /> : <FaSave />}
+                          {todayLogs[prayer]?.length > 0 ? 'Saved & Locked' : `Save ${prayer}`}
                         </button>
                       </div>
 
-                      {todayLogs[prayer]?.length > 0 && (
-                        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 text-blue-700 text-sm rounded-lg flex items-center gap-2">
-                          <FaClock />
-                          Attendance for {prayer} has been finalized and cannot be modified.
-                        </div>
-                      )}
-
-                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {filteredUsers.map((user) => (
-                          <div 
-                            key={user._id}
-                            className={`p-4 rounded-lg border-2 transition-all ${
-                              attendance[prayer]?.[user._id] 
-                                ? 'border-green-400 bg-green-50' 
-                                : 'border-gray-200 bg-gray-50'
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
+                          <div key={user._id} className={`p-4 rounded-xl border-2 transition-all ${
+                            attendance[prayer]?.[user._id] ? 'border-green-500 bg-white' : 'border-gray-100 bg-white'
+                          }`}>
+                            <div className="flex items-center gap-3 mb-3">
                               {user.profileImage ? (
-                                <img 
-                                  src={user.profileImage?.startsWith('data:') ? user.profileImage : `${BACKEND_URL}${user.profileImage}`} 
-                                  alt={user.name}
-                                  className="w-10 h-10 rounded-full object-cover"
-                                />
+                                <img src={user.profileImage?.startsWith('data:') ? user.profileImage : `${BACKEND_URL}${user.profileImage}`} className="w-10 h-10 rounded-full object-cover" />
                               ) : (
-                                <div className="w-10 h-10 rounded-full bg-islamic-green flex items-center justify-center">
-                                  <FaUser className="text-white" />
-                                </div>
+                                <div className="w-10 h-10 rounded-full bg-islamic-green flex items-center justify-center text-white"><FaUser size={14} /></div>
                               )}
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-gray-800 truncate">{user.name}</p>
-                                <p className="text-sm text-gray-500 truncate">{user.email}</p>
-                              </div>
+                              <span className="font-bold text-sm truncate">{user.name}</span>
                             </div>
-                            <div className="mt-3 flex gap-2">
+                            <div className="flex gap-2">
                               <button
                                 onClick={() => handleAttendanceChange(prayer, user._id, true)}
                                 disabled={todayLogs[prayer]?.length > 0}
-                                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
-                                  attendance[prayer]?.[user._id] === true
-                                    ? 'bg-green-500 text-white'
-                                    : 'bg-gray-200 text-gray-600 hover:bg-green-100'
-                                } ${todayLogs[prayer]?.length > 0 ? 'cursor-not-allowed opacity-80' : ''}`}
+                                className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest ${
+                                  attendance[prayer]?.[user._id] === true ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'
+                                }`}
                               >
-                                <FaCheck className="inline mr-1" /> Prayed
+                                Prayed
                               </button>
                               <button
                                 onClick={() => handleAttendanceChange(prayer, user._id, false)}
                                 disabled={todayLogs[prayer]?.length > 0}
-                                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
-                                  attendance[prayer]?.[user._id] === false
-                                    ? 'bg-red-500 text-white'
-                                    : 'bg-gray-200 text-gray-600 hover:bg-red-100'
-                                } ${todayLogs[prayer]?.length > 0 ? 'cursor-not-allowed opacity-80' : ''}`}
+                                className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest ${
+                                  attendance[prayer]?.[user._id] === false ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-400'
+                                }`}
                               >
-                                <FaTimes className="inline mr-1" /> Missed
+                                Missed
                               </button>
                             </div>
                           </div>
@@ -439,172 +339,100 @@ const Admin = () => {
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          )}
 
-        {/* Users Tab */}
-        {activeTab === 'users' && (
-          <section className="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
-            <div className="mb-6">
-              <div className="relative max-w-md">
+          {/* Users Tab - Card layout on mobile */}
+          {activeTab === 'users' && (
+            <div className="space-y-4">
+              <div className="relative mb-4">
                 <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search users..."
+                  placeholder="Search all users..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-islamic-green"
+                  className="w-full pl-10 pr-4 py-4 bg-white border border-gray-200 rounded-2xl shadow-sm"
                 />
               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredUsers.map((user) => (
+                  <div key={user._id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4">
+                    <div className="flex items-center gap-4">
+                      {user.profileImage ? (
+                        <img src={user.profileImage?.startsWith('data:') ? user.profileImage : `${BACKEND_URL}${user.profileImage}`} className="w-14 h-14 rounded-full object-cover border-2 border-islamic-green/20" />
+                      ) : (
+                        <div className="w-14 h-14 rounded-full bg-islamic-cream flex items-center justify-center text-islamic-green"><FaUser size={20} /></div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-black text-gray-800 truncate">{user.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 border-t pt-4">
+                      <button onClick={() => viewUserHistory(user)} className="flex-1 py-2 bg-islamic-cream text-islamic-green rounded-lg font-bold text-xs uppercase">History</button>
+                      <button onClick={() => handleDeleteUser(user._id, user.name)} className="p-2 text-red-400 hover:bg-red-50 rounded-lg"><FaTrash /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
 
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">User</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Email</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Joined</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map((user) => (
-                    <tr key={user._id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-3">
-                          {user.profileImage ? (
-                            <img 
-                              src={user.profileImage?.startsWith('data:') ? user.profileImage : `${BACKEND_URL}${user.profileImage}`} 
-                              alt={user.name}
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-full bg-islamic-green flex items-center justify-center">
-                              <FaUser className="text-white" />
-                            </div>
-                          )}
-                          <span className="font-medium text-gray-800">{user.name}</span>
+          {/* User History Tab */}
+          {activeTab === 'history' && (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 min-h-[400px]">
+              {selectedUser ? (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <FaHistory size={20} className="text-islamic-gold" />
+                      <span className="font-bold truncate">{selectedUser.name}</span>
+                    </div>
+                    <button onClick={() => setSelectedUser(null)} className="text-xs font-bold text-red-400 uppercase">Close</button>
+                  </div>
+                  <div className="space-y-3">
+                    {Object.entries(groupedHistory).sort((a, b) => new Date(b[0]) - new Date(a[0])).map(([date, prayers]) => (
+                      <div key={date} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <span className="text-xs font-bold">{date}</span>
+                        <div className="flex gap-2">
+                          {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(p => (
+                            <div key={p} className={`w-3 h-3 rounded-full ${prayers[p] === true ? 'bg-green-500' : prayers[p] === false ? 'bg-red-500' : 'bg-gray-200'}`} />
+                          ))}
                         </div>
-                      </td>
-                      <td className="py-4 px-4 text-gray-600">{user.email}</td>
-                      <td className="py-4 px-4 text-gray-600">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="py-4 px-4 text-center">
-                        <div className="flex items-center justify-center gap-4">
-                          <button
-                            onClick={() => viewUserHistory(user)}
-                            className="text-islamic-green hover:underline font-medium"
-                          >
-                            View History
-                          </button>
-                          <button
-                            onClick={() => handleDeleteUser(user._id, user.name)}
-                            disabled={deleting === user._id}
-                            className={`p-2 rounded-lg transition-all ${
-                              deleting === user._id 
-                                ? 'bg-gray-100 text-gray-400' 
-                                : 'text-red-500 hover:bg-red-50'
-                            }`}
-                            title="Delete User"
-                          >
-                            {deleting === user._id ? (
-                              <div className="spinner w-4 h-4 border-2"></div>
-                            ) : (
-                              <FaTrash />
-                            )}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {filteredUsers.length === 0 && (
-                <p className="text-center text-gray-500 py-8">No users found.</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-4">
+                  <FaUsers size={40} className="opacity-20" />
+                  <p className="font-bold text-center">Select a user from the "Users" tab<br />to view their prayer history.</p>
+                </div>
               )}
             </div>
-          </section>
-        )}
-
-        {/* History Tab */}
-        {activeTab === 'history' && (
-          <section className="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-islamic-green-dark flex items-center gap-2">
-                <FaHistory className="text-islamic-gold" />
-                {selectedUser ? `Prayer History - ${selectedUser.name}` : 'Select a user to view history'}
-              </h3>
-              {selectedUser && (
-                <button
-                  onClick={() => setSelectedUser(null)}
-                  className="text-gray-600 hover:text-islamic-green"
-                >
-                  Clear Selection
-                </button>
-              )}
-            </div>
-
-            {selectedUser ? (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700">Fajr</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700">Dhuhr</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700">Asr</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700">Maghrib</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700">Isha</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700">Score</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(groupedHistory)
-                      .sort((a, b) => new Date(b[0]) - new Date(a[0]))
-                      .map(([date, prayers]) => {
-                        const prayedCount = Object.values(prayers).filter(v => v).length;
-                        return (
-                          <tr key={date} className="border-b border-gray-100 hover:bg-gray-50">
-                            <td className="py-3 px-4 text-sm">{date}</td>
-                            {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(prayer => (
-                              <td key={prayer} className="py-3 px-4 text-center">
-                                {prayers[prayer] === true ? (
-                                  <FaCheck className="text-green-500 mx-auto" />
-                                ) : prayers[prayer] === false ? (
-                                  <FaTimes className="text-red-500 mx-auto" />
-                                ) : (
-                                  <span className="text-gray-300">-</span>
-                                )}
-                              </td>
-                            ))}
-                            <td className="py-3 px-4 text-center">
-                              <span className={`font-semibold ${
-                                prayedCount === 5 ? 'text-green-600' : 
-                                prayedCount >= 3 ? 'text-yellow-600' : 'text-red-600'
-                              }`}>
-                                {prayedCount}/5
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-                {Object.keys(groupedHistory).length === 0 && (
-                  <p className="text-center text-gray-500 py-8">No prayer history available for this user.</p>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-12 text-gray-500">
-                <FaUser className="text-4xl mx-auto mb-4 text-gray-300" />
-                <p>Select a user from the "All Users" tab to view their prayer history.</p>
-              </div>
-            )}
-          </section>
-        )}
+          )}
+        </div>
       </main>
+
+      {/* Mobile Tab Bar */}
+      <nav className="mobile-nav">
+        <button onClick={() => setActiveTab('attendance')} className={`mobile-nav-item ${activeTab === 'attendance' ? 'active' : ''}`}>
+          <FaCheck size={20} />
+          <span className="text-[10px] mt-1 font-bold uppercase">Mark</span>
+        </button>
+        <button onClick={() => setActiveTab('users')} className={`mobile-nav-item ${activeTab === 'users' ? 'active' : ''}`}>
+          <FaUsers size={20} />
+          <span className="text-[10px] mt-1 font-bold uppercase">Users</span>
+        </button>
+        <button onClick={() => setActiveTab('history')} className={`mobile-nav-item ${activeTab === 'history' ? 'active' : ''}`}>
+          <FaHistory size={20} />
+          <span className="text-[10px] mt-1 font-bold uppercase">History</span>
+        </button>
+        <Link to="/dashboard" className="mobile-nav-item">
+          <FaMosque size={20} />
+          <span className="text-[10px] mt-1 font-bold uppercase">Home</span>
+        </Link>
+      </nav>
     </div>
   );
 };
