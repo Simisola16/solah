@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { prayerTimesAPI, userAPI, prayerLogAPI, BACKEND_URL } from '../utils/api';
 
 const Dashboard = () => {
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout, isAdmin, canViewAdmin } = useAuth();
   const [prayerTimes, setPrayerTimes] = useState(null);
   const [todayLogs, setTodayLogs] = useState({});
   const [stats, setStats] = useState(null);
@@ -115,7 +115,7 @@ const Dashboard = () => {
             <h1 className="text-2xl font-bold">Solah Tracker</h1>
           </div>
           <div className="flex items-center gap-4">
-            {isAdmin() && (
+            {canViewAdmin() && (
               <Link 
                 to="/admin" 
                 className="px-4 py-2 bg-islamic-gold text-islamic-green rounded-lg font-medium hover:bg-islamic-gold-light transition-all"
@@ -280,7 +280,7 @@ const Dashboard = () => {
           <FaCalendarAlt size={20} />
           <span className="text-[10px] mt-1 font-bold uppercase">History</span>
         </button>
-        {isAdmin() && (
+        {canViewAdmin() && (
           <Link to="/admin" className="mobile-nav-item">
             <FaUser size={20} />
             <span className="text-[10px] mt-1 font-bold uppercase">Admin</span>
