@@ -12,7 +12,7 @@ const Dashboard = () => {
   const [prayerTimes, setPrayerTimes] = useState(null);
   const [todayLogs, setTodayLogs] = useState({});
   const [stats, setStats] = useState(null);
-  const [globalStats, setGlobalStats] = useState(null);
+  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('today');
 
@@ -41,13 +41,15 @@ const Dashboard = () => {
       });
       setTodayLogs(logsMap);
 
-      // Fetch personal stats for streak/rate
+      // Fetch stats
       const statsResponse = await userAPI.getUserStats(user.id);
       setStats(statsResponse.data);
 
-      // Fetch global community stats
-      const globalResponse = await userAPI.getGlobalStats();
-      setGlobalStats(globalResponse.data);
+      // Fetch history (last 30 days)
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const historyResponse = await prayerLogAPI.getUserPrayerLogs(user.id, { startDate, endDate });
+      setHistory(historyResponse.data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -79,7 +81,7 @@ const Dashboard = () => {
       case 'missed':
         return <span className="badge-missed"><FaTimesCircle /> Missed</span>;
       default:
-        return null;
+        return <span className="badge-pending"><FaClock /> Pending</span>;
     }
   };
 
@@ -184,7 +186,7 @@ const Dashboard = () => {
 
         {/* Tab Selection (Desktop) */}
         <div className="hidden sm:flex gap-4 mb-6 border-b border-gray-200">
-          {['today', 'stats'].map(tab => (
+          {['today', 'history', 'stats'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -192,7 +194,7 @@ const Dashboard = () => {
                 activeTab === tab ? 'text-islamic-green border-b-2 border-islamic-green' : 'text-gray-600'
               }`}
             >
-              {tab === 'stats' ? 'Community Stats' : tab}
+              {tab}
             </button>
           ))}
         </div>
@@ -220,15 +222,44 @@ const Dashboard = () => {
             </section>
           )}
 
+          {activeTab === 'history' && (
+            <section className="bg-white rounded-2xl p-4 shadow-sm">
+              <h3 className="font-bold text-islamic-green-dark mb-4">Last 30 Days</h3>
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+                {Object.entries(groupedHistory)
+                  .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+                  .map(([date, prayers]) => {
+                    const prayedCount = Object.values(prayers).filter(v => v).length;
+                    return (
+                      <div key={date} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <div>
+                          <p className="font-bold text-sm">
+                            {date && !isNaN(new Date(date).getTime()) 
+                              ? new Date(date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
+                              : 'Recent Date'}
+                          </p>
+                          <div className="flex gap-1 mt-1">
+                            {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(p => (
+                              <div key={p} className={`w-2 h-2 rounded-full ${prayers[p] === true ? 'bg-green-500' : prayers[p] === false ? 'bg-red-500' : 'bg-gray-200'}`} title={p}></div>
+                            ))}
+                          </div>
+                        </div>
+                        <span className={`text-sm font-black ${prayedCount === 5 ? 'text-green-600' : 'text-islamic-gold'}`}>{prayedCount}/5</span>
+                      </div>
+                    );
+                  })}
+              </div>
+            </section>
+          )}
 
-          {activeTab === 'stats' && globalStats && (
+          {activeTab === 'stats' && stats && (
             <section className="bg-white rounded-2xl p-6 shadow-sm">
-              <h3 className="font-bold text-islamic-green-dark mb-6 text-center">Community Performance</h3>
+              <h3 className="font-bold text-islamic-green-dark mb-6">Your Performance</h3>
               <div className="grid grid-cols-2 gap-4">
-                <StatCard title="Total Marked" value={globalStats.totalPrayers} icon={<FaClock />} color="blue" />
-                <StatCard title="Total Prayed" value={globalStats.prayedCount} icon={<FaCheckCircle />} color="green" />
-                <StatCard title="Avg. Rate" value={`${globalStats.percentage}%`} icon={<FaFire />} color="gold" />
-                <StatCard title="Total Users" value={globalStats.totalUsers} icon={<FaUser />} color="red" />
+                <StatCard title="Total" value={stats.totalPrayers} icon={<FaClock />} color="blue" />
+                <StatCard title="Prayed" value={stats.prayedCount} icon={<FaCheckCircle />} color="green" />
+                <StatCard title="Missed" value={stats.missedCount} icon={<FaTimesCircle />} color="red" />
+                <StatCard title="Rate" value={`${stats.percentage}%`} icon={<FaFire />} color="gold" />
               </div>
             </section>
           )}
@@ -243,7 +274,11 @@ const Dashboard = () => {
         </button>
         <button onClick={() => setActiveTab('stats')} className={`mobile-nav-item ${activeTab === 'stats' ? 'active' : ''}`}>
           <FaChartPie size={20} />
-          <span className="text-[10px] mt-1 font-bold uppercase">Community</span>
+          <span className="text-[10px] mt-1 font-bold uppercase">Stats</span>
+        </button>
+        <button onClick={() => setActiveTab('history')} className={`mobile-nav-item ${activeTab === 'history' ? 'active' : ''}`}>
+          <FaCalendarAlt size={20} />
+          <span className="text-[10px] mt-1 font-bold uppercase">History</span>
         </button>
         {isAdmin() && (
           <Link to="/admin" className="mobile-nav-item">
