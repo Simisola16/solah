@@ -142,7 +142,8 @@ const Admin = () => {
       fetchAdminData(); // Refresh data
     } catch (error) {
       console.error('Error saving attendance:', error);
-      showMessage('error', `Failed to save ${prayer} attendance.`);
+      const errorMessage = error.response?.data?.message || `Failed to save ${prayer} attendance.`;
+      showMessage('error', errorMessage);
     } finally {
       setSaving(prev => ({ ...prev, [prayer]: false }));
     }
